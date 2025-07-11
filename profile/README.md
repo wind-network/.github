@@ -4,10 +4,10 @@
 
 # **Wind Network**
 
-### *Building the Future of Decentralized Blockchain Infrastructure*
+### *Forging the scalable Solana's data infrastructure*
 
 <p align="center">
-  <strong>Ultra-fast • Decentralized • Scalable</strong>
+  <strong>Fast • Decentralized • Scalable</strong>
 </p>
 
 <p align="center">
@@ -20,8 +20,8 @@
 <p align="center">
   <a href="https://windnetwork.ai"><img src="https://img.shields.io/badge/🌐_Website-4A90E2?style=flat-square&logoColor=white" alt="Website" /></a>
   <a href="https://docs.windnetwork.ai"><img src="https://img.shields.io/badge/📚_Docs-00D4AA?style=flat-square&logoColor=white" alt="Documentation" /></a>
-  <a href="https://twitter.com/WindNetworkAI"><img src="https://img.shields.io/badge/🐦_Twitter-1DA1F2?style=flat-square&logoColor=white" alt="Twitter" /></a>
-  <a href="mailto:team@windnetwork.ai"><img src="https://img.shields.io/badge/✉️_Contact-EA4335?style=flat-square&logoColor=white" alt="Email" /></a>
+  <a href="https://twitter.com/windnetwork_"><img src="https://img.shields.io/badge/🐦_Twitter-1DA1F2?style=flat-square&logoColor=white" alt="Twitter" /></a>
+  <a href="mailto:vivek@windnetwork.ai"><img src="https://img.shields.io/badge/✉️_Contact-EA4335?style=flat-square&logoColor=white" alt="Email" /></a>
 </p>
 
 ---
@@ -30,7 +30,7 @@
 
 ## 🎯 **Our Mission**
 
-Eliminating centralized bottlenecks in blockchain data access while delivering **enterprise-grade performance** and **bulletproof reliability**. We're building the infrastructure that powers the next generation of Web3 applications.
+Eliminating centralized bottlenecks in Solana's data access while delivering **enterprise-grade performance** and **bulletproof reliability**. We're building the infrastructure that powers the next generation of Web3 applications.
 
 <br>
 
