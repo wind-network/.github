@@ -1,0 +1,33 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🚀 Get Started Guide
+    url: https://docs.windnetwork.ai/getting-started
+    about: New to Wind Network? Start here with our comprehensive setup guide
+
+  - name: 📚 Documentation
+    url: https://docs.windnetwork.ai
+    about: Browse our complete documentation, API references, and tutorials
+
+  - name: 💬 Community Discussions
+    url: https://github.com/orgs/wind-network/discussions
+    about: Ask questions, share ideas, and connect with the community
+
+  - name: 🐛 Security Issues
+    url: https://github.com/wind-network/.github/blob/main/SECURITY.md
+    about: Report security vulnerabilities privately and responsibly
+
+  - name: 💼 Commercial Support
+    url: https://windnetwork.ai/support
+    about: Enterprise support, consulting, and custom development services
+
+  - name: 🎯 Feature Requests & RFCs
+    url: https://github.com/orgs/wind-network/discussions/categories/ideas
+    about: Propose new features and request for comments (RFCs)
+
+  - name: 📢 Stay Updated
+    url: https://twitter.com/WindNetworkAI
+    about: Follow us for the latest news, updates, and announcements
+
+  - name: 📧 Direct Contact
+    url: mailto:vivek@windnetwork.ai
+    about: Reach out to our team directly for partnerships and inquiries
