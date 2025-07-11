@@ -1,0 +1,89 @@
+# Bug labels
+- name: bug
+  color: d73a4a
+  description: Something isn't working
+
+- name: critical
+  color: b60205
+  description: Critical priority issue
+
+- name: high-priority
+  color: d93f0b
+  description: High priority issue
+
+# Feature labels
+- name: enhancement
+  color: a2eeef
+  description: New feature or request
+
+- name: feature
+  color: 0e8a16
+  description: New feature implementation
+
+# Process labels
+- name: needs-triage
+  color: ededed
+  description: Needs initial review and categorization
+
+- name: needs-discussion
+  color: d4c5f9
+  description: Needs community discussion
+
+- name: good-first-issue
+  color: 7057ff
+  description: Good for newcomers
+
+- name: help-wanted
+  color: 008672
+  description: Extra attention is needed
+
+# Component labels
+- name: sni
+  color: 1d76db
+  description: SNI (Solana Network Indexer)
+
+- name: tide
+  color: 0969da
+  description: Tide (Data Streaming)
+
+- name: windexer
+  color: 0366d6
+  description: wIndexer (Core Indexing)
+
+- name: docs
+  color: 0075ca
+  description: Documentation
+
+- name: api
+  color: 006b75
+  description: API related
+
+# Status labels
+- name: wip
+  color: fbca04
+  description: Work in progress
+
+- name: blocked
+  color: d93f0b
+  description: Blocked by other work
+
+- name: duplicate
+  color: cfd3d7
+  description: This issue or pull request already exists
+
+- name: invalid
+  color: e4e669
+  description: This doesn't seem right
+
+- name: wontfix
+  color: ffffff
+  description: This will not be worked on
+
+# Security labels
+- name: security
+  color: b60205
+  description: Security related issue
+
+- name: vulnerability
+  color: d73a4a
+  description: Security vulnerability
