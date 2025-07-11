@@ -1,0 +1,256 @@
+name: Documentation Deployment
+on:
+  push:
+    branches: [ main ]
+    paths: 
+      - 'docs/**'
+      - '*.md'
+      - 'src/**/*.rs' # For auto-generated API docs
+  pull_request:
+    branches: [ main ]
+    paths: 
+      - 'docs/**'
+      - '*.md'
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '18'
+  RUST_VERSION: 'stable'
+
+jobs:
+  build-rust-docs:
+    name: Build Rust Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+
+      - name: Build documentation
+        run: |
+          cargo doc --all-features --no-deps --workspace
+          # Generate index.html for GitHub Pages
+          echo '<meta http-equiv="refresh" content="0; url=./doc/index.html">' > target/doc/index.html
+
+      - name: Upload Rust docs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rust-docs
+          path: target/doc/
+          retention-days: 1
+
+  build-user-docs:
+    name: Build User Documentation
+    runs-on: ubuntu-latest
+    if: hashFiles('docs/**') != ''
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: 'docs/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: docs
+        run: npm ci
+
+      - name: Build documentation site
+        working-directory: docs
+        run: |
+          npm run build
+          # Add custom domain if specified
+          if [ ! -z "${{ vars.DOCS_DOMAIN }}" ]; then
+            echo "${{ vars.DOCS_DOMAIN }}" > build/CNAME
+          fi
+
+      - name: Upload user docs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: user-docs
+          path: docs/build/
+          retention-days: 1
+
+  build-combined-docs:
+    name: Combine Documentation
+    runs-on: ubuntu-latest
+    needs: [build-rust-docs, build-user-docs]
+    if: always() && (needs.build-rust-docs.result == 'success' || needs.build-user-docs.result == 'success')
+    steps:
+      - name: Create documentation structure
+        run: |
+          mkdir -p combined-docs/api
+          mkdir -p combined-docs/guide
+
+      - name: Download Rust docs
+        if: needs.build-rust-docs.result == 'success'
+        uses: actions/download-artifact@v4
+        with:
+          name: rust-docs
+          path: combined-docs/api/
+
+      - name: Download user docs
+        if: needs.build-user-docs.result == 'success'
+        uses: actions/download-artifact@v4
+        with:
+          name: user-docs
+          path: combined-docs/guide/
+
+      - name: Create main index page
+        run: |
+          cat > combined-docs/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Wind Network Documentation</title>
+              <style>
+                  body { 
+                      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                      margin: 0; padding: 2rem; background: #0D1117; color: #C9D1D9;
+                      display: flex; justify-content: center; align-items: center; min-height: 100vh;
+                  }
+                  .container { text-align: center; max-width: 600px; }
+                  .logo { font-size: 3rem; margin-bottom: 1rem; }
+                  h1 { color: #FF6B6B; margin-bottom: 2rem; }
+                  .docs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem; }
+                  .doc-card { 
+                      background: #161B22; border: 1px solid #30363D; border-radius: 8px; 
+                      padding: 2rem; text-decoration: none; color: inherit; transition: all 0.2s;
+                  }
+                  .doc-card:hover { border-color: #FF6B6B; transform: translateY(-2px); }
+                  .doc-icon { font-size: 2rem; margin-bottom: 1rem; }
+                  .doc-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; }
+                  .doc-desc { color: #8B949E; font-size: 0.9rem; }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+                  <div class="logo">🌊</div>
+                  <h1>Wind Network Documentation</h1>
+                  <p>Choose your documentation experience:</p>
+                  
+                  <div class="docs-grid">
+                      <a href="./guide/" class="doc-card">
+                          <div class="doc-icon">📚</div>
+                          <div class="doc-title">User Guide</div>
+                          <div class="doc-desc">Tutorials, guides, and getting started documentation</div>
+                      </a>
+                      
+                      <a href="./api/" class="doc-card">
+                          <div class="doc-icon">🔧</div>
+                          <div class="doc-title">API Reference</div>
+                          <div class="doc-desc">Auto-generated Rust API documentation</div>
+                      </a>
+                  </div>
+              </div>
+          </body>
+          </html>
+          EOF
+
+      - name: Upload combined docs
+        uses: actions/upload-artifact@v4
+        with:
+          name: combined-docs
+          path: combined-docs/
+          retention-days: 1
+
+  deploy-docs:
+    name: Deploy Documentation
+    runs-on: ubuntu-latest
+    needs: build-combined-docs
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download combined docs
+        uses: actions/download-artifact@v4
+        with:
+          name: combined-docs
+          path: ./docs-site
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+
+      - name: Upload to GitHub Pages
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: ./docs-site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
+
+  check-links:
+    name: Check Documentation Links
+    runs-on: ubuntu-latest
+    needs: build-combined-docs
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Download combined docs
+        uses: actions/download-artifact@v4
+        with:
+          name: combined-docs
+          path: ./docs-check
+
+      - name: Install link checker
+        run: npm install -g markdown-link-check
+
+      - name: Check internal links
+        run: |
+          find ./docs-check -name "*.md" -exec markdown-link-check {} \;
+
+  notify-docs-team:
+    name: Notify Documentation Team
+    runs-on: ubuntu-latest
+    needs: [deploy-docs]
+    if: failure() && github.ref == 'refs/heads/main'
+    steps:
+      - name: Create issue for failed deployment
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            await github.rest.issues.create({
+              owner,
+              repo,
+              title: '📚 Documentation Deployment Failed',
+              body: `
+              ## Documentation Deployment Failed
+              
+              The documentation deployment workflow failed for commit ${context.sha}.
+              
+              **Repository**: ${owner}/${repo}
+              **Workflow Run**: https://github.com/${owner}/${repo}/actions/runs/${context.runId}
+              **Branch**: ${context.ref}
+              
+              Please investigate and fix the deployment issue.
+              
+              ### Common Issues
+              - Build failures in Rust docs
+              - Missing dependencies in user docs
+              - GitHub Pages configuration issues
+              - Link checking failures
+              
+              cc: @wind-network/docs-team
+              `,
+              labels: ['documentation', 'deployment', 'needs-investigation']
+            });
