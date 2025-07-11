@@ -1,0 +1,55 @@
+name: Organization Sync
+on:
+  schedule:
+    - cron: '0 2 * * 1' # Weekly on Monday at 2 AM UTC
+  workflow_dispatch:
+
+jobs:
+  sync-labels:
+    name: Sync Labels
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Sync Labels
+        uses: micnncim/action-label-syncer@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          manifest: .github/labels.yml
+
+  sync-settings:
+    name: Sync Repository Settings
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Sync Settings
+        uses: actions/github-script@v6
+        with:
+          script: |
+            // Organization-wide repository settings
+            const repos = await github.rest.repos.listForOrg({
+              org: 'wind-network',
+              type: 'all'
+            });
+
+            for (const repo of repos.data) {
+              if (!repo.archived) {
+                await github.rest.repos.update({
+                  owner: 'wind-network',
+                  repo: repo.name,
+                  description: repo.description,
+                  homepage: repo.homepage,
+                  has_issues: true,
+                  has_projects: true,
+                  has_wiki: false,
+                  delete_branch_on_merge: true,
+                  allow_squash_merge: true,
+                  allow_merge_commit: false,
+                  allow_rebase_merge: true
+                });
+              }
+            }
