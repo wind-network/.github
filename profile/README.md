@@ -1,6 +1,6 @@
 <div align="center">
 
-![Wind Network Logo](assets/windnetwork.png)
+<img src="https://github.com/wind-network/.github/blob/2b9bf009c3dbb0ee46dd24e8451e6792a2c71d1c/assets/windnetwork.png?raw=true" alt="Wind Network Logo" width="80" height="80">
 
 # **Wind Network**
 
